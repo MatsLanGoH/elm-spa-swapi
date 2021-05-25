@@ -1,7 +1,7 @@
 module UI exposing (layout)
 
 import Gen.Route as Route exposing (Route)
-import Html exposing (Html, div)
+import Html exposing (Html)
 import Html.Attributes as Attr
 
 
