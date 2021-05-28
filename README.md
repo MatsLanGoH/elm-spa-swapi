@@ -1,6 +1,10 @@
 # my new project
 > 🌳  built with [elm-spa](https://elm-spa.dev)
 
+## status
+
+* tbd
+
 ## dependencies
 
 This project requires the latest LTS version of [Node.js](https://nodejs.org/)
