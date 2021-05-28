@@ -1,10 +1,17 @@
-module Pages.People exposing (view)
+module Pages.People exposing (page)
 
 import Gen.Route as Route exposing (Route)
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Page exposing (Page)
+import Request exposing (Request)
+import Shared
 import UI
 import View exposing (View)
+
+
+
+-- MODEL
 
 
 type alias PeopleIndex =
@@ -14,6 +21,10 @@ type alias PeopleIndex =
 
     -- , url : String
     }
+
+
+
+-- MOCK DATA
 
 
 mockPeople : List PeopleIndex
@@ -26,6 +37,16 @@ mockPeople =
         , ( "4", "Darth Vader" )
         , ( "5", "Leia Organa" )
         ]
+
+
+
+-- VIEWS
+
+
+page : Shared.Model -> Request -> Page
+page _ _ =
+    Page.static
+        { view = view }
 
 
 view : View msg

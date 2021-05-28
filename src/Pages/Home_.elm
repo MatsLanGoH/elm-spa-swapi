@@ -1,9 +1,18 @@
-module Pages.Home_ exposing (view)
+module Pages.Home_ exposing (page)
 
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Page exposing (Page)
+import Request exposing (Request)
+import Shared
 import UI
 import View exposing (View)
+
+
+page : Shared.Model -> Request -> Page
+page shared req =
+    Page.static
+        { view = view }
 
 
 view : View msg
