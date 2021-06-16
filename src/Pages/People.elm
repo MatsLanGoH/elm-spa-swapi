@@ -1,30 +1,35 @@
-module Pages.People exposing (page)
+module Pages.People exposing (Model, Msg, page)
 
+import Api.PeopleIndex exposing (PeopleIndex)
+import Effect exposing (Effect)
+import Gen.Params.People exposing (Params)
 import Gen.Route as Route exposing (Route)
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Page exposing (Page)
-import Request exposing (Request)
+import Page
+import Request
 import Shared
 import UI
 import View exposing (View)
 
 
+page : Shared.Model -> Request.With Params -> Page.With Model Msg
+page shared req =
+    Page.advanced
+        { init = init shared
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
 
--- MODEL
 
 
-type alias PeopleIndex =
-    -- TODO: move to API / Data
-    { uid : String
-    , name : String
+-- INIT
 
-    -- , url : String
+
+type alias Model =
+    { peopleList : List PeopleIndex
     }
-
-
-
--- MOCK DATA
 
 
 mockPeople : List PeopleIndex
@@ -39,25 +44,53 @@ mockPeople =
         ]
 
 
+init : Shared.Model -> ( Model, Effect Msg )
+init shared =
+    let
+        model =
+            { peopleList = mockPeople
+            }
+    in
+    ( model, Effect.none )
 
--- VIEWS
 
 
-page : Shared.Model -> Request -> Page
-page _ _ =
-    Page.static
-        { view = view }
+-- UPDATE
 
 
-view : View msg
-view =
+type Msg
+    = NoOp
+
+
+update : Msg -> Model -> ( Model, Effect Msg )
+update msg model =
+    case msg of
+        NoOp ->
+            ( model, Effect.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+
+-- VIEW
+
+
+view : Model -> View Msg
+view model =
     { title = "People Index"
-    , body = UI.layout viewBody
+    , body = UI.layout <| viewBody model.peopleList
     }
 
 
-viewBody : List (Html msg)
-viewBody =
+viewBody : List PeopleIndex -> List (Html msg)
+viewBody peopleList =
     [ Html.h1 [] [ Html.text "People Index" ]
     , Html.div []
         [ Html.p []
@@ -65,13 +98,13 @@ viewBody =
             ]
         ]
     , Html.div []
-        [ Html.ul [] viewPeopleList
+        [ Html.ul [] (viewPeopleList peopleList)
         ]
     ]
 
 
-viewPeopleList : List (Html msg)
-viewPeopleList =
+viewPeopleList : List PeopleIndex -> List (Html msg)
+viewPeopleList peopleList =
     let
         viewPeopleLinkItem : PeopleIndex -> Html msg
         viewPeopleLinkItem peopleIndex =
@@ -81,4 +114,4 @@ viewPeopleList =
                     [ Html.text peopleIndex.name ]
                 ]
     in
-    List.map viewPeopleLinkItem mockPeople
+    List.map viewPeopleLinkItem peopleList
