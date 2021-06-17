@@ -1,7 +1,6 @@
 module Api.PeopleIndex exposing (Listing, PeopleIndex, list)
 
 import Api.Data exposing (Data)
-import Effect exposing (Effect)
 import Http
 import Json.Decode as Json
 import Utils.Json exposing (withField)
@@ -35,6 +34,8 @@ decoder =
 list : { onResponse : Data Listing -> msg } -> Cmd msg
 list options =
     -- TODO: Refactor
+    -- TODO: Handle pagination
+    -- TODO: Handle item count
     Http.request
         { method = "GET"
         , headers = []
