@@ -1,6 +1,8 @@
-module Api.PeopleIndex exposing (PeopleIndex)
+module Api.PeopleIndex exposing (Listing, PeopleIndex, list)
 
+import Api.Data exposing (Data)
 import Effect exposing (Effect)
+import Http
 import Json.Decode as Json
 import Utils.Json exposing (withField)
 
@@ -13,6 +15,11 @@ type alias PeopleIndex =
     }
 
 
+type alias Listing =
+    { peopleIndices : List PeopleIndex
+    }
+
+
 decoder : Json.Decoder PeopleIndex
 decoder =
     Utils.Json.record PeopleIndex
@@ -22,11 +29,21 @@ decoder =
 
 
 -- |> withField "url" Json.string
+-- ENDPOINTS
 
 
-type alias Listing =
-    { peopleIndices : List PeopleIndex
-    }
+list : { onResponse : Data Listing -> msg } -> Cmd msg
+list options =
+    -- TODO: Refactor
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = "https://www.swapi.tech/api/people/"
+        , body = Http.emptyBody
+        , expect = Api.Data.expectJson options.onResponse paginatedDecoder
+        , timeout = Just (1000 * 60)
+        , tracker = Nothing
+        }
 
 
 paginatedDecoder : Json.Decoder Listing

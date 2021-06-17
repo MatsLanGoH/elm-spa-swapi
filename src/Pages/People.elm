@@ -1,5 +1,6 @@
 module Pages.People exposing (Model, Msg, page)
 
+import Api.Data exposing (Data)
 import Api.PeopleIndex exposing (PeopleIndex)
 import Effect exposing (Effect)
 import Gen.Params.People exposing (Params)
@@ -29,6 +30,7 @@ page shared req =
 
 type alias Model =
     { peopleList : List PeopleIndex
+    , listing : Data Api.PeopleIndex.Listing
     }
 
 
@@ -49,9 +51,15 @@ init shared =
     let
         model =
             { peopleList = mockPeople
+            , listing = Api.Data.Loading
             }
     in
-    ( model, Effect.none )
+    ( model, fetchPeopleIndices )
+
+
+fetchPeopleIndices : Effect Msg
+fetchPeopleIndices =
+    Effect.fromCmd <| Api.PeopleIndex.list { onResponse = GotPeopleIndices }
 
 
 
@@ -59,14 +67,16 @@ init shared =
 
 
 type Msg
-    = NoOp
+    = GotPeopleIndices (Data Api.PeopleIndex.Listing)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Effect.none )
+        GotPeopleIndices listing ->
+            ( { model | listing = listing }
+            , Effect.none
+            )
 
 
 
@@ -85,12 +95,12 @@ subscriptions model =
 view : Model -> View Msg
 view model =
     { title = "People Index"
-    , body = UI.layout <| viewBody model.peopleList
+    , body = UI.layout <| viewBody model
     }
 
 
-viewBody : List PeopleIndex -> List (Html msg)
-viewBody peopleList =
+viewBody : Model -> List (Html msg)
+viewBody model =
     [ Html.h1 [] [ Html.text "People Index" ]
     , Html.div []
         [ Html.p []
@@ -98,7 +108,10 @@ viewBody peopleList =
             ]
         ]
     , Html.div []
-        [ Html.ul [] (viewPeopleList peopleList)
+        [ Html.ul [] (viewPeopleList model.peopleList)
+        ]
+    , Html.div []
+        [ Html.p [] (viewListing model.listing)
         ]
     ]
 
@@ -115,3 +128,19 @@ viewPeopleList peopleList =
                 ]
     in
     List.map viewPeopleLinkItem peopleList
+
+
+viewListing : Data Api.PeopleIndex.Listing -> List (Html msg)
+viewListing listing =
+    case listing of
+        Api.Data.Loading ->
+            [ Html.text "loading " ]
+
+        Api.Data.NotAsked ->
+            [ Html.text "Not asked" ]
+
+        Api.Data.Success peopleListing ->
+            viewPeopleList peopleListing.peopleIndices
+
+        _ ->
+            []
