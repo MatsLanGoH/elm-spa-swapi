@@ -1,6 +1,6 @@
 [build]
   publish = "public"
-  command = "npm i elm-spa@beta elm@latest-0.19.1 && npx elm-spa build"
+  command = "npm i elm-spa elm@latest-0.19.1 && npx elm-spa build"
 
 [[redirects]]
   from = "/*"
