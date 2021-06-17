@@ -15,6 +15,7 @@ layout children =
     [ Html.div [ Attr.class "container" ]
         [ Html.header [ Attr.class "navbar" ]
             [ viewLink "Home" Route.Home_
+            , viewLink "Films" Route.Films
             , viewLink "People" Route.People
             ]
         , Html.main_ [] children
