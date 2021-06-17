@@ -27,12 +27,26 @@ page shared req =
 
 
 type alias Model =
-    { id : String }
+    { id : String
+    , person : Data Api.Person.Person
+    }
 
 
 init : Params -> ( Model, Cmd Msg )
 init params =
-    ( { id = params.id }, Cmd.none )
+    ( { id = params.id
+      , person = Api.Data.Loading
+      }
+    , fetchPerson params
+    )
+
+
+fetchPerson : Params -> Cmd Msg
+fetchPerson params =
+    Api.Person.get
+        { id = params.id
+        , onResponse = GotPerson
+        }
 
 
 
@@ -40,14 +54,16 @@ init params =
 
 
 type Msg
-    = ReplaceMe
+    = GotPerson (Data Api.Person.Person)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
-            ( model, Cmd.none )
+        GotPerson person ->
+            ( { model | person = person }
+            , Cmd.none
+            )
 
 
 
@@ -72,9 +88,59 @@ view model =
 
 viewBody : Model -> List (Html msg)
 viewBody model =
-    [ Html.h1 [] [ Html.text ("People detail: " ++ model.id) ]
-    , Html.div []
-        [ Html.p []
-            [ Html.text "People details will go here" ]
+    [ Html.div [] <|
+        viewPerson
+            model.person
+    ]
+
+
+viewPerson : Data Api.Person.Person -> List (Html msg)
+viewPerson apiPerson =
+    case apiPerson of
+        Api.Data.Loading ->
+            [ Html.h1 [] [ Html.text "Loading..." ] ]
+
+        Api.Data.NotAsked ->
+            [ Html.h1 [] [ Html.text "Not asked..." ] ]
+
+        Api.Data.Success person ->
+            viewPersonInfo person
+
+        _ ->
+            [ Html.h1 [] [ Html.text "Error..." ] ]
+
+
+viewPersonInfo : Person -> List (Html msg)
+viewPersonInfo person =
+    [ Html.h1 [] [ Html.text person.name ]
+    , Html.ul []
+        [ Html.li []
+            [ Html.text "Name: "
+            , Html.text person.name
+            ]
+        , Html.li []
+            [ Html.text "Gender: "
+            , Html.text person.gender
+            ]
+        , Html.li []
+            [ Html.text "Birth Year: "
+            , Html.text person.birthYear
+            ]
+        , Html.li []
+            [ Html.text "Skin Color: "
+            , Html.text person.skinColor
+            ]
+        , Html.li []
+            [ Html.text "Eye Color: "
+            , Html.text person.eyeColor
+            ]
+        , Html.li []
+            [ Html.text "Height: "
+            , Html.text person.height
+            ]
+        , Html.li []
+            [ Html.text "Mass: "
+            , Html.text person.mass
+            ]
         ]
     ]
