@@ -29,29 +29,15 @@ page shared req =
 
 
 type alias Model =
-    { peopleList : List PeopleIndex
-    , listing : Data Api.PeopleIndex.Listing
+    { listing : Data Api.PeopleIndex.Listing
     }
-
-
-mockPeople : List PeopleIndex
-mockPeople =
-    -- TODO replace with actual data
-    List.map (\a -> PeopleIndex (Tuple.first a) (Tuple.second a))
-        [ ( "1", "Luke Skywalker" )
-        , ( "2", "C-3PO" )
-        , ( "3", "R2-D2" )
-        , ( "4", "Darth Vader" )
-        , ( "5", "Leia Organa" )
-        ]
 
 
 init : Shared.Model -> ( Model, Effect Msg )
 init shared =
     let
         model =
-            { peopleList = mockPeople
-            , listing = Api.Data.Loading
+            { listing = Api.Data.Loading
             }
     in
     ( model, fetchPeopleIndices )
@@ -108,10 +94,7 @@ viewBody model =
             ]
         ]
     , Html.div []
-        [ Html.ul [] (viewPeopleList model.peopleList)
-        ]
-    , Html.div []
-        [ Html.p [] (viewListing model.listing)
+        [ Html.ul [] (viewListing model.listing)
         ]
     ]
 
