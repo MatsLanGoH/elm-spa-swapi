@@ -118,28 +118,22 @@ viewFilmInfo : Film -> Html msg
 viewFilmInfo film =
     Html.div []
         [ Html.a
-            [ Attr.href (Route.toHref <| Route.Films__Id_ { id = getIdFromFilm film }) ]
+            [ Attr.href (Route.toHref <| Route.Films__Id_ { id = film.id }) ]
             [ Html.h3 []
                 [ Html.text <|
                     "Episode "
-                        ++ String.fromInt film.episodeId
+                        ++ String.fromInt film.properties.episodeId
                         ++ ": "
-                        ++ film.title
+                        ++ film.properties.title
                 ]
             ]
-        , Html.p [] [ Html.text film.openingCrawl ]
+        , Html.p [] [ Html.text film.properties.openingCrawl ]
         , Html.details []
             [ Html.ul []
-                [ Html.li [] [ Html.text "Director: ", Html.text film.director ]
-                , Html.li [] [ Html.text "Producer: ", Html.text film.producer ]
-                , Html.li [] [ Html.text "Release Date: ", Html.text film.release_date ]
+                [ Html.li [] [ Html.text "Director: ", Html.text film.properties.director ]
+                , Html.li [] [ Html.text "Producer: ", Html.text film.properties.producer ]
+                , Html.li [] [ Html.text "Release Date: ", Html.text film.properties.release_date ]
                 ]
             ]
         , Html.hr [] []
         ]
-
-
-getIdFromFilm : Film -> String
-getIdFromFilm film =
-    film.url
-        |> String.right 1

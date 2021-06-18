@@ -7,6 +7,12 @@ import Utils.Json exposing (withField)
 
 
 type alias Film =
+    { properties : FilmProperties
+    , id : String
+    }
+
+
+type alias FilmProperties =
     { title : String
     , episodeId : Int
     , openingCrawl : String
@@ -24,6 +30,13 @@ type alias Listing =
 decoder : Json.Decoder Film
 decoder =
     Utils.Json.record Film
+        |> withField "properties" filmPropertiesDecoder
+        |> withField "uid" Json.string
+
+
+filmPropertiesDecoder : Json.Decoder FilmProperties
+filmPropertiesDecoder =
+    Utils.Json.record FilmProperties
         |> withField "title" Json.string
         |> withField "episode_id" Json.int
         |> withField "opening_crawl" Json.string
@@ -36,11 +49,10 @@ decoder =
 listDecoder : Json.Decoder Listing
 listDecoder =
     Json.map Listing
-        (Json.field "result" (Json.list (Json.field "properties" decoder)))
+        (Json.field "result" (Json.list decoder))
 
 
 
--- (Json.at ["result", "properties"] (Json.list decoder))
 -- ENDPOINTS
 
 
