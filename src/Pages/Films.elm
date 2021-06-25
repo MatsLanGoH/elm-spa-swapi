@@ -17,8 +17,8 @@ page : Shared.Model -> Request.With Params -> Page.With Model Msg
 page shared req =
     Page.element
         { init = init
-        , update = update
-        , view = view
+        , update = update shared
+        , view = view shared
         , subscriptions = subscriptions
         }
 
@@ -54,8 +54,8 @@ type Msg
     = GotFilmListing (Data Api.Film.Listing)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Shared.Model -> Msg -> Model -> ( Model, Cmd Msg )
+update shared msg model =
     case msg of
         GotFilmListing listing ->
             ( { model | listing = listing }
@@ -76,10 +76,10 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> View Msg
-view model =
+view : Shared.Model -> Model -> View Msg
+view shared _ =
     { title = "Films"
-    , body = UI.layout <| viewBody model
+    , body = UI.layout <| viewBody shared
     }
 
 

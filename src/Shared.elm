@@ -7,6 +7,8 @@ module Shared exposing
     , update
     )
 
+import Api.Data exposing (Data)
+import Api.Film exposing (Film, Listing)
 import Json.Decode as Json
 import Request exposing (Request)
 
@@ -16,7 +18,8 @@ type alias Flags =
 
 
 type alias Model =
-    {}
+    { listing : Data Api.Film.Listing
+    }
 
 
 type Msg
@@ -25,7 +28,11 @@ type Msg
 
 init : Request -> Flags -> ( Model, Cmd Msg )
 init _ _ =
-    ( {}, Cmd.none )
+    let
+        model =
+            { listing = Api.Data.Loading }
+    in
+    ( model, Cmd.none )
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
