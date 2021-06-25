@@ -1,4 +1,4 @@
-module Api.Film exposing (Film, Listing, list)
+module Api.Film exposing (Film, Listing, get, list)
 
 import Api.Data exposing (Data)
 import Http
@@ -64,6 +64,19 @@ list options =
         , url = "https://www.swapi.tech/api/films/"
         , body = Http.emptyBody
         , expect = Api.Data.expectJson options.onResponse listDecoder
+        , timeout = Just (1000 * 60)
+        , tracker = Nothing
+        }
+
+
+get : { uid : String, onResponse : Data Film -> msg } -> Cmd msg
+get options =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = "https://www.swapi.tech/api/films/" ++ options.uid ++ "/"
+        , body = Http.emptyBody
+        , expect = Api.Data.expectJson options.onResponse (Json.field "result" decoder)
         , timeout = Just (1000 * 60)
         , tracker = Nothing
         }

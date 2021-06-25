@@ -118,7 +118,7 @@ viewFilmInfo : Film -> Html msg
 viewFilmInfo film =
     Html.div []
         [ Html.a
-            [ Attr.href (Route.toHref <| Route.Films__Id_ { id = film.id }) ]
+            [ Attr.href (Route.toHref <| Route.Films__Uid_ { uid = film.id }) ]
             [ Html.h3 []
                 [ Html.text <|
                     "Episode "
