@@ -12,11 +12,11 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page _ req =
+page shared req =
     Page.element
         { init = init req.params
         , update = update
-        , view = view
+        , view = view shared
         , subscriptions = subscriptions
         }
 
@@ -36,16 +36,8 @@ init params =
     ( { uid = params.uid
       , film = Api.Data.Loading
       }
-    , fetchFilm params
+    , Cmd.none
     )
-
-
-fetchFilm : Params -> Cmd Msg
-fetchFilm params =
-    Api.Film.get
-        { uid = params.uid
-        , onResponse = GotFilm
-        }
 
 
 
@@ -53,16 +45,14 @@ fetchFilm params =
 
 
 type Msg
-    = GotFilm (Data Api.Film.Film)
+    = NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotFilm film ->
-            ( { model | film = film }
-            , Cmd.none
-            )
+        NoOp ->
+            ( model, Cmd.none )
 
 
 
@@ -78,10 +68,10 @@ subscriptions _ =
 -- VIEW
 
 
-view : Model -> View Msg
-view model =
+view : Shared.Model -> Model -> View Msg
+view shared model =
     { title = getFilmTitle model
-    , body = UI.layout <| viewBody model
+    , body = UI.layout <| viewBody shared model
     }
 
 
@@ -95,22 +85,38 @@ getFilmTitle model =
             "Film Details"
 
 
-viewBody : Model -> List (Html msg)
-viewBody model =
-    [ Html.div [] <| viewFilm model.film ]
+viewBody : Shared.Model -> Model -> List (Html msg)
+viewBody shared model =
+    [ Html.div [] <| viewFilm shared.listing model ]
 
 
-viewFilm : Data Api.Film.Film -> List (Html msg)
-viewFilm apiFilm =
-    case apiFilm of
+getFilm : Model -> Api.Film.Listing -> Maybe Film
+getFilm model filmListing =
+    filmListing.films
+        |> List.filter (\film -> film.uid == model.uid)
+        |> List.head
+
+
+viewFilm : Data Api.Film.Listing -> Model -> List (Html msg)
+viewFilm listing model =
+    case listing of
         Api.Data.Loading ->
             [ Html.h1 [] [ Html.text "Loading..." ] ]
 
         Api.Data.NotAsked ->
             [ Html.h1 [] [ Html.text "Not asked..." ] ]
 
-        Api.Data.Success film ->
-            viewFilmInfo film
+        Api.Data.Success filmListing ->
+            let
+                apiFilm =
+                    getFilm model filmListing
+            in
+            case apiFilm of
+                Just film ->
+                    viewFilmInfo film
+
+                Nothing ->
+                    [ Html.h1 [] [ Html.text "Not asked..." ] ]
 
         _ ->
             [ Html.h1 [] [ Html.text "Error..." ] ]
