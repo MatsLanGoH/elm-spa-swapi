@@ -1,9 +1,9 @@
 module Pages.Films exposing (Model, Msg, page)
 
 import Api.Data exposing (Data)
-import Api.Film exposing (Film, Listing)
+import Api.Film exposing (Film)
 import Gen.Params.Films exposing (Params)
-import Gen.Route as Route exposing (Route)
+import Gen.Route as Route
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Page
@@ -14,10 +14,10 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page shared _ =
     Page.element
         { init = init
-        , update = update shared
+        , update = update
         , view = view shared
         , subscriptions = subscriptions
         }
@@ -28,22 +28,12 @@ page shared req =
 
 
 type alias Model =
-    { listing : Data Api.Film.Listing
-    }
+    {}
 
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        model =
-            { listing = Api.Data.Loading }
-    in
-    ( model, fetchFilmListing )
-
-
-fetchFilmListing : Cmd Msg
-fetchFilmListing =
-    Api.Film.list { onResponse = GotFilmListing }
+    ( {}, Cmd.none )
 
 
 
@@ -51,16 +41,14 @@ fetchFilmListing =
 
 
 type Msg
-    = GotFilmListing (Data Api.Film.Listing)
+    = NoOp
 
 
-update : Shared.Model -> Msg -> Model -> ( Model, Cmd Msg )
-update shared msg model =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
-        GotFilmListing listing ->
-            ( { model | listing = listing }
-            , Cmd.none
-            )
+        NoOp ->
+            ( model, Cmd.none )
 
 
 
@@ -68,7 +56,7 @@ update shared msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -83,7 +71,7 @@ view shared _ =
     }
 
 
-viewBody : Model -> List (Html msg)
+viewBody : Shared.Model -> List (Html msg)
 viewBody model =
     [ Html.h1 [] [ Html.text "Star Wars Films" ]
     , Html.div []

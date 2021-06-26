@@ -4,7 +4,7 @@ import Api.Data exposing (Data)
 import Api.PeopleIndex exposing (PeopleIndex)
 import Effect exposing (Effect)
 import Gen.Params.People exposing (Params)
-import Gen.Route as Route exposing (Route)
+import Gen.Route as Route
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Page
@@ -15,7 +15,7 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
+page shared _ =
     Page.advanced
         { init = init shared
         , update = update
@@ -34,7 +34,7 @@ type alias Model =
 
 
 init : Shared.Model -> ( Model, Effect Msg )
-init shared =
+init _ =
     let
         model =
             { listing = Api.Data.Loading
@@ -70,7 +70,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 

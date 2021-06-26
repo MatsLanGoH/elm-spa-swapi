@@ -8,7 +8,7 @@ module Shared exposing
     )
 
 import Api.Data exposing (Data)
-import Api.Film exposing (Film, Listing)
+import Api.Film
 import Json.Decode as Json
 import Request exposing (Request)
 
@@ -17,13 +17,13 @@ type alias Flags =
     Json.Value
 
 
+
+-- INIT
+
+
 type alias Model =
     { listing : Data Api.Film.Listing
     }
-
-
-type Msg
-    = NoOp
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
@@ -32,14 +32,37 @@ init _ _ =
         model =
             { listing = Api.Data.Loading }
     in
-    ( model, Cmd.none )
+    ( model
+    , Cmd.batch
+        [ fetchFilmListing
+        ]
+    )
+
+
+fetchFilmListing : Cmd Msg
+fetchFilmListing =
+    Api.Film.list { onResponse = GotFilmListing }
+
+
+
+-- UPDATE
+
+
+type Msg
+    = GotFilmListing (Data Api.Film.Listing)
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
 update _ msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        GotFilmListing listing ->
+            ( { model | listing = listing }
+            , Cmd.none
+            )
+
+
+
+-- SUBSCRIPTIONS
 
 
 subscriptions : Request -> Model -> Sub Msg

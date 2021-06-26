@@ -10,7 +10,7 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request -> Page
-page shared req =
+page _ _ =
     Page.static
         { view = view }
 
