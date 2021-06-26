@@ -8,7 +8,7 @@ import Utils.Json exposing (withField)
 
 type alias Film =
     { properties : FilmProperties
-    , id : String
+    , uid : String
     }
 
 
