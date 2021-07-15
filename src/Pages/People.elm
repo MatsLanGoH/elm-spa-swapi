@@ -2,6 +2,7 @@ module Pages.People exposing (Model, Msg, page)
 
 import Api.Data exposing (Data)
 import Api.PeopleIndex exposing (PeopleIndex)
+import Dict
 import Effect exposing (Effect)
 import Gen.Params.People exposing (Params)
 import Gen.Route as Route
@@ -15,9 +16,9 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared _ =
+page shared req =
     Page.advanced
-        { init = init shared
+        { init = init shared req
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -33,19 +34,26 @@ type alias Model =
     }
 
 
-init : Shared.Model -> ( Model, Effect Msg )
-init _ =
+init : Shared.Model -> Request.With Params -> ( Model, Effect Msg )
+init _ req =
     let
         model =
             { listing = Api.Data.Loading
             }
+
+        pageIndex =
+            Dict.get "page" req.query
     in
-    ( model, fetchPeopleIndices )
+    ( model, fetchPeopleIndices pageIndex )
 
 
-fetchPeopleIndices : Effect Msg
-fetchPeopleIndices =
-    Effect.fromCmd <| Api.PeopleIndex.list { onResponse = GotPeopleIndices }
+fetchPeopleIndices : Maybe String -> Effect Msg
+fetchPeopleIndices pageIndex =
+    Effect.fromCmd <|
+        Api.PeopleIndex.list
+            { page = pageIndex
+            , onResponse = GotPeopleIndices
+            }
 
 
 
