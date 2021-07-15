@@ -43,11 +43,14 @@ init _ req =
 
         pageIndex =
             Dict.get "page" req.query
+                |> Maybe.withDefault "1"
+                |> String.toInt
+                |> Maybe.withDefault 1
     in
     ( model, fetchPeopleIndices pageIndex )
 
 
-fetchPeopleIndices : Maybe String -> Effect Msg
+fetchPeopleIndices : Int -> Effect Msg
 fetchPeopleIndices pageIndex =
     Effect.fromCmd <|
         Api.PeopleIndex.list
@@ -104,6 +107,8 @@ viewBody model =
     , Html.div []
         [ Html.ul [] (viewListing model.listing)
         ]
+    , Html.div []
+        (viewPagination model.listing)
     ]
 
 
@@ -132,6 +137,22 @@ viewListing listing =
 
         Api.Data.Success peopleListing ->
             viewPeopleList peopleListing.peopleIndices
+
+        _ ->
+            []
+
+
+viewPagination : Data Api.PeopleIndex.Listing -> List (Html msg)
+viewPagination listing =
+    case listing of
+        Api.Data.Loading ->
+            []
+
+        Api.Data.NotAsked ->
+            []
+
+        Api.Data.Success peopleListing ->
+            [ Html.text <| "Current page: " ++ String.fromInt peopleListing.page ]
 
         _ ->
             []

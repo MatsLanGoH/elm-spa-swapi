@@ -17,6 +17,8 @@ type alias PeopleIndex =
 
 type alias Listing =
     { peopleIndices : List PeopleIndex
+    , page : Int
+    , totalPages : Int
     }
 
 
@@ -32,32 +34,41 @@ decoder =
 -- ENDPOINTS
 
 
-list : { page : Maybe String, onResponse : Data Listing -> msg } -> Cmd msg
+itemsPerPage : Int
+itemsPerPage =
+    25
+
+
+list : { page : Int, onResponse : Data Listing -> msg } -> Cmd msg
 list options =
     -- TODO: Handle pagination
     let
         queryParams =
-            case options.page of
-                Just page ->
-                    [ string "page" page
-                    , int "limit" 10
-                    ]
-
-                Nothing ->
-                    []
+            [ int "page" options.page
+            , int "limit" itemsPerPage
+            ]
     in
     Http.request
         { method = "GET"
         , headers = []
         , url = crossOrigin "https://www.swapi.tech/api" [ "people" ] queryParams
         , body = Http.emptyBody
-        , expect = Api.Data.expectJson options.onResponse paginatedDecoder
+        , expect = Api.Data.expectJson options.onResponse (paginatedDecoder options.page)
         , timeout = Just (1000 * 60)
         , tracker = Nothing
         }
 
 
-paginatedDecoder : Json.Decoder Listing
-paginatedDecoder =
-    Json.map Listing
+paginatedDecoder : Int -> Json.Decoder Listing
+paginatedDecoder page =
+    let
+        multiplePeople : List PeopleIndex -> Int -> Listing
+        multiplePeople peopleIndices count =
+            { peopleIndices = peopleIndices
+            , page = page
+            , totalPages = count // itemsPerPage
+            }
+    in
+    Json.map2 multiplePeople
         (Json.field "results" (Json.list decoder))
+        (Json.field "total_pages" Json.int)
